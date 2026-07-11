@@ -47,6 +47,12 @@ const Navbar = () => {
             >
               Home
             </Link>
+            <Link
+              to="/marketplace"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
+            >
+              Find Experts
+            </Link>
             {isAuthenticated && (
               <Link
                 to="/dashboard"
@@ -54,6 +60,22 @@ const Navbar = () => {
               >
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Dashboard</span>
+              </Link>
+            )}
+            {isAuthenticated && user.role === 'EXPERT' && (
+              <Link
+                to="/expert/dashboard"
+                className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
+              >
+                Expert Dashboard
+              </Link>
+            )}
+            {isAuthenticated && user.role === 'ADMIN' && (
+              <Link
+                to="/admin/skills"
+                className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
+              >
+                Manage Skills
               </Link>
             )}
           </div>
@@ -120,6 +142,13 @@ const Navbar = () => {
             >
               Home
             </Link>
+            <Link
+              to="/marketplace"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+            >
+              Find Experts
+            </Link>
             {isAuthenticated && (
               <Link
                 to="/dashboard"
@@ -127,6 +156,24 @@ const Navbar = () => {
                 className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
               >
                 Dashboard
+              </Link>
+            )}
+            {isAuthenticated && user.role === 'EXPERT' && (
+              <Link
+                to="/expert/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+              >
+                Expert Dashboard
+              </Link>
+            )}
+            {isAuthenticated && user.role === 'ADMIN' && (
+              <Link
+                to="/admin/skills"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+              >
+                Manage Skills
               </Link>
             )}
           </div>

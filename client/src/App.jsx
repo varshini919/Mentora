@@ -8,6 +8,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Marketplace from './pages/Marketplace';
+import ExpertDetails from './pages/ExpertDetails';
+import ExpertDashboard from './pages/ExpertDashboard';
+import SkillsAdmin from './pages/SkillsAdmin';
 
 function App() {
   return (
@@ -21,6 +25,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/experts/:id" element={<ExpertDetails />} />
 
               {/* Protected Routes */}
               <Route
@@ -28,6 +34,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/expert/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['EXPERT']}>
+                    <ExpertDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/skills"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <SkillsAdmin />
                   </ProtectedRoute>
                 }
               />
@@ -39,7 +61,7 @@ function App() {
           
           <footer className="border-t border-slate-200 bg-white py-6">
             <div className="mx-auto max-w-7xl px-4 text-center text-xs text-slate-400 sm:px-6 lg:px-8">
-              &copy; {new Date().getFullYear()} Mentora Platform. All rights reserved. Sprint 1 Build.
+              &copy; {new Date().getFullYear()} Mentora Platform. All rights reserved. Sprint 2 Build.
             </div>
           </footer>
         </div>

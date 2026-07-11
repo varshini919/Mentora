@@ -3,6 +3,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes');
+const expertRoutes = require('./routes/expertRoutes');
+const skillRoutes = require('./routes/skillRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
+const slotRoutes = require('./routes/slotRoutes');
 
 const app = express();
 
@@ -22,6 +26,10 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/expert', expertRoutes);
+app.use('/api/skills', skillRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/slots', slotRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

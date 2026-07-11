@@ -13,14 +13,91 @@ enum Role {
   ADMIN
 }
 
+enum MeetingType {
+  ONLINE
+  OFFLINE
+}
+
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  expertProfile ExpertProfile?
 
   @@map("users")
+}
+
+model ExpertProfile {
+  id                String             @id @default(uuid())
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title             String
+  bio               String             @db.Text
+  yearsOfExperience Int
+  company           String
+  location          String
+  hourlyRate        Float
+  profileImage      String?            @db.Text
+  linkedinUrl       String?
+  githubUrl         String?
+  portfolioUrl      String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  skills            ExpertSkill[]
+  services          ExpertService[]
+  slots             AvailabilitySlot[]
+
+  @@map("expert_profiles")
+}
+
+model Skill {
+  id      String        @id @default(uuid())
+  name    String        @unique
+  experts ExpertSkill[]
+
+  @@map("skills")
+}
+
+model ExpertSkill {
+  id              String        @id @default(uuid())
+  expertProfileId String
+  expertProfile   ExpertProfile @relation(fields: [expertProfileId], references: [id], onDelete: Cascade)
+  skillId         String
+  skill           Skill         @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([expertProfileId, skillId])
+  @@map("expert_skills")
+}
+
+model ExpertService {
+  id              String        @id @default(uuid())
+  expertProfileId String
+  expertProfile   ExpertProfile @relation(fields: [expertProfileId], references: [id], onDelete: Cascade)
+  serviceTitle    String
+  description     String        @db.Text
+  duration        Int // Duration in minutes
+  price           Float
+  meetingType     MeetingType   @default(ONLINE)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("expert_services")
+}
+
+model AvailabilitySlot {
+  id              String        @id @default(uuid())
+  expertProfileId String
+  expertProfile   ExpertProfile @relation(fields: [expertProfileId], references: [id], onDelete: Cascade)
+  date            DateTime
+  startTime       String // e.g., "09:00"
+  endTime         String // e.g., "10:00"
+  isBooked        Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("availability_slots")
 }
