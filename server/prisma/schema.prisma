@@ -18,6 +18,14 @@ enum MeetingType {
   OFFLINE
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id            String         @id @default(uuid())
   name          String
@@ -27,6 +35,7 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   expertProfile ExpertProfile?
+  bookings      Booking[]      @relation(name: "LearnerBookings")
 
   @@map("users")
 }
@@ -50,6 +59,7 @@ model ExpertProfile {
   skills            ExpertSkill[]
   services          ExpertService[]
   slots             AvailabilitySlot[]
+  bookings          Booking[]
 
   @@map("expert_profiles")
 }
@@ -84,6 +94,7 @@ model ExpertService {
   meetingType     MeetingType   @default(ONLINE)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  bookings        Booking[]
 
   @@map("expert_services")
 }
@@ -98,6 +109,28 @@ model AvailabilitySlot {
   isBooked        Boolean       @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  booking         Booking?
 
   @@map("availability_slots")
+}
+
+model Booking {
+  id              String           @id @default(uuid())
+  learnerId       String
+  learner         User             @relation(name: "LearnerBookings", fields: [learnerId], references: [id], onDelete: Cascade)
+  expertProfileId String
+  expertProfile   ExpertProfile    @relation(fields: [expertProfileId], references: [id], onDelete: Cascade)
+  serviceId       String
+  service         ExpertService    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  slotId          String?          @unique
+  slot            AvailabilitySlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  bookingDate     DateTime
+  status          BookingStatus    @default(PENDING)
+  meetingLink     String?
+  meetingLocation String?
+  notes           String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("bookings")
 }

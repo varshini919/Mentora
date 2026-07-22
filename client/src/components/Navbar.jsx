@@ -54,29 +54,53 @@ const Navbar = () => {
               Find Experts
             </Link>
             {isAuthenticated && (
-              <Link
-                to="/dashboard"
-                className="flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                <span>Dashboard</span>
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Dashboard</span>
+                </Link>
+                <Link
+                  to="/bookings"
+                  className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
+                >
+                  My Bookings
+                </Link>
+              </>
             )}
             {isAuthenticated && user.role === 'EXPERT' && (
-              <Link
-                to="/expert/dashboard"
-                className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
-              >
-                Expert Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/expert/dashboard"
+                  className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
+                >
+                  Expert Dashboard
+                </Link>
+                <Link
+                  to="/expert/bookings"
+                  className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
+                >
+                  Booking Requests
+                </Link>
+              </>
             )}
             {isAuthenticated && user.role === 'ADMIN' && (
-              <Link
-                to="/admin/skills"
-                className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
-              >
-                Manage Skills
-              </Link>
+              <>
+                <Link
+                  to="/admin/skills"
+                  className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
+                >
+                  Manage Skills
+                </Link>
+                <Link
+                  to="/admin/bookings"
+                  className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition font-semibold"
+                >
+                  Admin Bookings
+                </Link>
+              </>
             )}
           </div>
 
@@ -150,31 +174,58 @@ const Navbar = () => {
               Find Experts
             </Link>
             {isAuthenticated && (
-              <Link
-                to="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
-              >
-                Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/bookings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                >
+                  My Bookings
+                </Link>
+              </>
             )}
             {isAuthenticated && user.role === 'EXPERT' && (
-              <Link
-                to="/expert/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
-              >
-                Expert Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/expert/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                >
+                  Expert Dashboard
+                </Link>
+                <Link
+                  to="/expert/bookings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                >
+                  Booking Requests
+                </Link>
+              </>
             )}
             {isAuthenticated && user.role === 'ADMIN' && (
-              <Link
-                to="/admin/skills"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
-              >
-                Manage Skills
-              </Link>
+              <>
+                <Link
+                  to="/admin/skills"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                >
+                  Manage Skills
+                </Link>
+                <Link
+                  to="/admin/bookings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                >
+                  Admin Bookings
+                </Link>
+              </>
             )}
           </div>
 

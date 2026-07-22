@@ -12,6 +12,9 @@ import Marketplace from './pages/Marketplace';
 import ExpertDetails from './pages/ExpertDetails';
 import ExpertDashboard from './pages/ExpertDashboard';
 import SkillsAdmin from './pages/SkillsAdmin';
+import Bookings from './pages/Bookings';
+import ExpertBookings from './pages/ExpertBookings';
+import BookingHistory from './pages/BookingHistory';
 
 function App() {
   return (
@@ -38,10 +41,26 @@ function App() {
                 }
               />
               <Route
+                path="/bookings"
+                element={
+                  <ProtectedRoute>
+                    <Bookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/expert/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={['EXPERT']}>
                     <ExpertDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/expert/bookings"
+                element={
+                  <ProtectedRoute allowedRoles={['EXPERT']}>
+                    <ExpertBookings />
                   </ProtectedRoute>
                 }
               />
@@ -53,6 +72,14 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/bookings"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <BookingHistory />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Fallback Route */}
               <Route path="*" element={<Navigate to="/" replace />} />
@@ -61,7 +88,7 @@ function App() {
           
           <footer className="border-t border-slate-200 bg-white py-6">
             <div className="mx-auto max-w-7xl px-4 text-center text-xs text-slate-400 sm:px-6 lg:px-8">
-              &copy; {new Date().getFullYear()} Mentora Platform. All rights reserved. Sprint 2 Build.
+              &copy; {new Date().getFullYear()} Mentora Platform. All rights reserved. Sprint 3 Build.
             </div>
           </footer>
         </div>

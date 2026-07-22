@@ -12,14 +12,20 @@ import {
   Globe,
   Loader2,
   Calendar,
-  DollarSign,
-  ArrowLeft
+  ArrowLeft,
+  Check
 } from 'lucide-react';
+import BookingModal from '../components/BookingModal';
 
 const ExpertDetails = () => {
   const { id } = useParams();
   const [expert, setExpert] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Booking Flow States
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   const fetchExpertDetails = async () => {
     setLoading(true);
@@ -38,8 +44,26 @@ const ExpertDetails = () => {
     fetchExpertDetails();
   }, [id]);
 
-  const handleBookSlot = (slot) => {
-    toast.success(`Booking request sent for ${new Date(slot.date).toLocaleDateString()} at ${slot.startTime}! (Simulation)`);
+  const handleBookSlotClick = (slot) => {
+    if (!selectedService) {
+      toast.error('Please select a consultation offering package first!');
+      // Scroll to consultation offerings section
+      const element = document.getElementById('offerings-section');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+    setSelectedSlot(slot);
+    setShowBookingModal(true);
+  };
+
+  const handleBookingSuccess = () => {
+    setShowBookingModal(false);
+    setSelectedSlot(null);
+    setSelectedService(null);
+    // Reload expert details to refresh active available slots list
+    fetchExpertDetails();
   };
 
   if (loading) {
@@ -166,8 +190,9 @@ const ExpertDetails = () => {
           </div>
 
           {/* Consultation Services offerings */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-6">Consultation Offerings</h3>
+          <div id="offerings-section" className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-900">Consultation Offerings</h3>
+            <p className="text-xs text-slate-400 mb-6 mt-1">Select one of the packages below before picking a time slot</p>
 
             {expert.services.length === 0 ? (
               <div className="text-center py-8 text-slate-400 text-sm">
@@ -175,30 +200,45 @@ const ExpertDetails = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {expert.services.map((service) => (
-                  <div
-                    key={service.id}
-                    className="flex flex-col justify-between p-5 bg-slate-50 border border-slate-200 rounded-2xl group hover:border-indigo-200 transition"
-                  >
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-extrabold text-slate-900 text-md">{service.serviceTitle}</h4>
-                        <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700">
-                          {service.meetingType}
-                        </span>
+                {expert.services.map((service) => {
+                  const isSelected = selectedService?.id === service.id;
+                  return (
+                    <div
+                      key={service.id}
+                      onClick={() => setSelectedService(service)}
+                      className={`flex flex-col justify-between p-5 border rounded-2xl cursor-pointer group hover:border-indigo-300 transition ${
+                        isSelected
+                          ? 'bg-indigo-50/20 border-indigo-500 ring-2 ring-indigo-500'
+                          : 'bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-extrabold text-slate-900 text-md flex items-center gap-1.5">
+                            {service.serviceTitle}
+                            {isSelected && <Check className="h-4.5 w-4.5 text-indigo-600 stroke-[3]" />}
+                          </h4>
+                          <span className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded border transition ${
+                            isSelected
+                              ? 'bg-indigo-600 border-indigo-600 text-white'
+                              : 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                          }`}>
+                            {service.meetingType}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-505 leading-relaxed line-clamp-3 mb-4">{service.description}</p>
                       </div>
-                      <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-4">{service.description}</p>
-                    </div>
 
-                    <div className="flex justify-between items-center border-t border-slate-200 pt-3 mt-3">
-                      <span className="text-xs text-slate-400 flex items-center">
-                        <Clock className="h-3.5 w-3.5 mr-1" />
-                        {service.duration} mins
-                      </span>
-                      <span className="text-sm font-extrabold text-slate-800">${service.price}</span>
+                      <div className="flex justify-between items-center border-t border-slate-200/80 pt-3 mt-3">
+                        <span className="text-xs text-slate-400 flex items-center">
+                          <Clock className="h-3.5 w-3.5 mr-1" />
+                          {service.duration} mins
+                        </span>
+                        <span className="text-sm font-extrabold text-slate-800">${service.price}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -235,7 +275,7 @@ const ExpertDetails = () => {
                       </span>
                     </div>
                     <button
-                      onClick={() => handleBookSlot(slot)}
+                      onClick={() => handleBookSlotClick(slot)}
                       className="inline-flex justify-center items-center rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition cursor-pointer"
                     >
                       Book
@@ -247,6 +287,20 @@ const ExpertDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Booking Modal Overlay */}
+      {showBookingModal && (
+        <BookingModal
+          expert={expert}
+          service={selectedService}
+          slot={selectedSlot}
+          onClose={() => {
+            setShowBookingModal(false);
+            setSelectedSlot(null);
+          }}
+          onSuccess={handleBookingSuccess}
+        />
+      )}
     </div>
   );
 };

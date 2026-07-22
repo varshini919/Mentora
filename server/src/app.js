@@ -7,6 +7,7 @@ const expertRoutes = require('./routes/expertRoutes');
 const skillRoutes = require('./routes/skillRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const slotRoutes = require('./routes/slotRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/expert', expertRoutes);
 app.use('/api/skills', skillRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/slots', slotRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
