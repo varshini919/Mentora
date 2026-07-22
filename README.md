@@ -14,7 +14,7 @@ Current Progress:
 
 ✅ Sprint 2 - Expert Marketplace
 
-⏳ Sprint 3 - Workshop MREADME.md
+✅ Sprint 3 - Workshop MREADME.md
 arketplace & Booking System
 
 ⏳ Sprint 4 - Admin Dashboard & AWS S3 Integration
