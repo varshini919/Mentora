@@ -4,18 +4,5 @@
 > Creating employment opportunities by enabling graduates and professionals to monetize their expertise through mentorship, workshops, and personalized learning sessions.
 > Developing a secure full-stack marketplace with expert onboarding, role-based authentication, service management, and real-time booking architecture..
 
-## 📌 Project Status
-
-🚧 Under Active Development
-
-Current Progress:
-
-✅ Sprint 1 - Foundation, Authentication & Role-Based Access Control (Completed)
-
-✅ Sprint 2 - Expert Marketplace
-
-✅ Sprint 3 - Booking System, Session Management and Appointment Workflow
-
-✅ Sprint 4 - Admin Dashboard & AWS S3 Integration
 
 
