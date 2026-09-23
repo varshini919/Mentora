@@ -16,8 +16,6 @@ Current Progress:
 
 ✅ Sprint 3 - Booking System, Session Management and Appointment Workflow
 
-⏳ Sprint 4 - Admin Dashboard & AWS S3 Integration
+✅ Sprint 4 - Admin Dashboard & AWS S3 Integration
 
-⏳ Sprint 5 - AWS Deployment
 
-⏳ Sprint 6 - Docker, CI/CD & Terraform
