@@ -13,6 +13,8 @@ import {
   CheckCircle,
   FileText
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { formatINR } from '../utils/formatters';
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -144,7 +146,7 @@ const Bookings = () => {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mentor</span>
                       <h4 className="font-extrabold text-slate-900 text-md">{b.expertProfile.user.name}</h4>
                     </div>
-                    <span className="text-sm font-extrabold text-slate-900">${b.service.price}</span>
+                    <span className="text-sm font-extrabold text-slate-900">{formatINR(b.service.price)}</span>
                   </div>
 
                   <div className="mb-4">
@@ -205,13 +207,19 @@ const Bookings = () => {
                   )}
                 </div>
 
-                <div className="border-t border-slate-100 pt-4 mt-2">
+                <div className="border-t border-slate-100 pt-4 mt-2 flex gap-3">
+                  <Link
+                    to={`/bookings/${b.id}`}
+                    className="flex-grow inline-flex justify-center items-center rounded-xl border border-slate-200 hover:border-slate-350 px-4 py-2.5 text-xs font-bold text-slate-700 transition shadow-sm bg-white"
+                  >
+                    View Details
+                  </Link>
                   <button
                     onClick={() => handleCancelBooking(b.id)}
                     disabled={actionLoading}
-                    className="w-full inline-flex justify-center items-center rounded-xl border border-slate-200 hover:bg-red-50 text-slate-500 hover:text-red-650 px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
+                    className="inline-flex justify-center items-center rounded-xl border border-slate-200 hover:bg-red-50 text-slate-400 hover:text-red-650 px-4 py-2.5 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
                   >
-                    Cancel Appointment
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -235,7 +243,7 @@ const Bookings = () => {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mentor</span>
                       <h4 className="font-extrabold text-slate-900 text-md">{b.expertProfile.user.name}</h4>
                     </div>
-                    <span className="text-sm font-extrabold text-slate-900">${b.service.price}</span>
+                    <span className="text-sm font-extrabold text-slate-900">{formatINR(b.service.price)}</span>
                   </div>
 
                   <div className="mb-4">
@@ -267,13 +275,19 @@ const Bookings = () => {
                   )}
                 </div>
 
-                <div className="border-t border-slate-100 pt-4 mt-2">
+                <div className="border-t border-slate-100 pt-4 mt-2 flex gap-3">
+                  <Link
+                    to={`/bookings/${b.id}`}
+                    className="flex-grow inline-flex justify-center items-center rounded-xl border border-slate-200 hover:border-slate-350 px-4 py-2.5 text-xs font-bold text-slate-700 transition shadow-sm bg-white"
+                  >
+                    View Details
+                  </Link>
                   <button
                     onClick={() => handleCancelBooking(b.id)}
                     disabled={actionLoading}
-                    className="w-full inline-flex justify-center items-center rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 px-4 py-2.5 text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
+                    className="inline-flex justify-center items-center rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-450 px-4 py-2.5 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
                   >
-                    Retract Request
+                    Retract
                   </button>
                 </div>
               </div>
@@ -298,6 +312,7 @@ const Bookings = () => {
                   <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Meeting Type</th>
                   <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Price</th>
                   <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
@@ -316,12 +331,17 @@ const Bookings = () => {
                       {b.service.meetingType}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-800">
-                      ${b.service.price}
+                      {formatINR(b.service.price)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold border uppercase tracking-wider ${getStatusBadge(b.status)}`}>
                         {b.status}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold">
+                      <Link to={`/bookings/${b.id}`} className="text-indigo-600 hover:text-indigo-900 font-bold">
+                        View Details
+                      </Link>
                     </td>
                   </tr>
                 ))}

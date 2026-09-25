@@ -15,6 +15,8 @@ import SkillsAdmin from './pages/SkillsAdmin';
 import Bookings from './pages/Bookings';
 import ExpertBookings from './pages/ExpertBookings';
 import BookingHistory from './pages/BookingHistory';
+import Notifications from './pages/Notifications';
+import BookingDetails from './pages/BookingDetails';
 
 function App() {
   return (
@@ -45,6 +47,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Bookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/bookings/:id"
+                element={
+                  <ProtectedRoute>
+                    <BookingDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <Notifications />
                   </ProtectedRoute>
                 }
               />

@@ -8,6 +8,7 @@ const skillRoutes = require('./routes/skillRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const slotRoutes = require('./routes/slotRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/api/skills', skillRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/slots', slotRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

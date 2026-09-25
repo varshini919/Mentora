@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
@@ -14,6 +15,7 @@ import {
   ExternalLink,
   MessageSquare
 } from 'lucide-react';
+import { formatINR } from '../utils/formatters';
 
 const ExpertBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -164,7 +166,7 @@ const ExpertBookings = () => {
                           <span className="text-[10px] text-slate-550">{b.learner.email}</span>
                         </div>
                       </div>
-                      <span className="text-sm font-black text-slate-900">${b.service.price}</span>
+                      <span className="text-sm font-black text-slate-900">{formatINR(b.service.price)}</span>
                     </div>
 
                     <div className="mb-4">
@@ -294,7 +296,7 @@ const ExpertBookings = () => {
                         <span className="text-[10px] text-slate-550">{b.learner.email}</span>
                       </div>
                     </div>
-                    <span className="text-sm font-extrabold text-slate-900">${b.service.price}</span>
+                    <span className="text-sm font-extrabold text-slate-900">{formatINR(b.service.price)}</span>
                   </div>
 
                   <div className="mb-4">
@@ -353,18 +355,24 @@ const ExpertBookings = () => {
                   )}
                 </div>
 
-                <div className="border-t border-slate-100 pt-4 mt-2 flex gap-3">
+                <div className="border-t border-slate-100 pt-4 mt-2 flex gap-2">
+                  <Link
+                    to={`/bookings/${b.id}`}
+                    className="inline-flex justify-center items-center rounded-xl border border-slate-200 hover:border-slate-350 px-3 py-2 text-xs font-bold text-slate-700 transition shadow-sm bg-white"
+                  >
+                    Details
+                  </Link>
                   <button
                     onClick={() => handleUpdateStatus(b.id, 'REJECTED')}
                     disabled={actionLoading}
-                    className="flex-1 inline-flex justify-center items-center rounded-xl border border-slate-200 hover:bg-red-50 text-slate-500 hover:text-red-650 px-4 py-2.5 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
+                    className="flex-1 inline-flex justify-center items-center rounded-xl border border-slate-200 hover:bg-red-50 text-slate-500 hover:text-red-650 px-3 py-2 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
                   >
-                    Reject Session
+                    Reject
                   </button>
                   <button
                     onClick={() => handleUpdateStatus(b.id, 'COMPLETED')}
                     disabled={actionLoading}
-                    className="flex-1 inline-flex justify-center items-center rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
+                    className="flex-1 inline-flex justify-center items-center rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
                   >
                     Mark Completed
                   </button>
@@ -409,7 +417,7 @@ const ExpertBookings = () => {
                       {b.service.meetingType}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-850">
-                      ${b.service.price}
+                      {formatINR(b.service.price)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold border uppercase tracking-wider ${getStatusBadge(b.status)}`}>

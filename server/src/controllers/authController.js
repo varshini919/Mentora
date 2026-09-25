@@ -6,6 +6,12 @@ const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
     // Hash password
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -13,8 +19,8 @@ const register = async (req, res) => {
     // Create user in DB
     const user = await prisma.user.create({
       data: {
-        name,
-        email,
+        name: name.trim(),
+        email: cleanEmail,
         passwordHash,
         role: role || 'USER',
       },
@@ -40,6 +46,9 @@ const register = async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'Email is already registered.' });
+    }
     return res.status(500).json({ error: 'Internal server error during registration.' });
   }
 };
@@ -48,9 +57,15 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
     // Find user
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: cleanEmail },
     });
 
     if (!user) {

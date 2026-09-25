@@ -159,6 +159,26 @@ const listExperts = async (req, res) => {
             name: { contains: search, mode: 'insensitive' },
           },
         },
+        {
+          services: {
+            some: {
+              isActive: true,
+              OR: [
+                { serviceTitle: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+              ],
+            },
+          },
+        },
+        {
+          skills: {
+            some: {
+              skill: {
+                name: { contains: search, mode: 'insensitive' },
+              },
+            },
+          },
+        },
       ];
     }
 
@@ -175,6 +195,11 @@ const listExperts = async (req, res) => {
         skills: {
           include: {
             skill: true,
+          },
+        },
+        services: {
+          where: {
+            isActive: true,
           },
         },
       },
@@ -209,7 +234,11 @@ const getExpertById = async (req, res) => {
             skill: true,
           },
         },
-        services: true,
+        services: {
+          where: {
+            isActive: true,
+          },
+        },
         slots: {
           where: {
             isBooked: false, // Only show available slots

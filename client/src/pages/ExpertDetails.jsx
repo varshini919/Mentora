@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
@@ -16,9 +16,12 @@ import {
   Check
 } from 'lucide-react';
 import BookingModal from '../components/BookingModal';
+import { formatINR } from '../utils/formatters';
 
 const ExpertDetails = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const serviceIdParam = searchParams.get('serviceId');
   const [expert, setExpert] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,6 +46,15 @@ const ExpertDetails = () => {
   useEffect(() => {
     fetchExpertDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (expert && serviceIdParam) {
+      const found = expert.services.find(s => s.id === serviceIdParam);
+      if (found && found.isActive !== false) {
+        setSelectedService(found);
+      }
+    }
+  }, [expert, serviceIdParam]);
 
   const handleBookSlotClick = (slot) => {
     if (!selectedService) {
@@ -126,8 +138,10 @@ const ExpertDetails = () => {
 
         <div className="flex flex-col items-end gap-3 self-stretch md:self-auto border-t border-slate-100 md:border-t-0 pt-4 md:pt-0">
           <div className="text-left md:text-right">
-            <span className="text-xs text-slate-400 font-semibold block uppercase tracking-wider">Consultation Fee</span>
-            <span className="text-3xl font-black text-slate-900">${expert.hourlyRate}<span className="text-sm font-semibold text-slate-400">/hr</span></span>
+            <span className="text-xs text-slate-400 font-semibold block uppercase tracking-wider">Session Price</span>
+            <span className="text-2xl font-black text-slate-900">
+              {selectedService ? formatINR(selectedService.price) : (expert.services?.length > 0 ? `From ${formatINR(expert.services[0].price)}` : formatINR(expert.hourlyRate))}
+            </span>
           </div>
 
           {/* Social links */}
@@ -196,7 +210,7 @@ const ExpertDetails = () => {
 
             {expert.services.length === 0 ? (
               <div className="text-center py-8 text-slate-400 text-sm">
-                No specific package offerings defined by this mentor. Standard hourly rates apply.
+                No active package offerings defined by this mentor yet.
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -234,7 +248,7 @@ const ExpertDetails = () => {
                           <Clock className="h-3.5 w-3.5 mr-1" />
                           {service.duration} mins
                         </span>
-                        <span className="text-sm font-extrabold text-slate-800">${service.price}</span>
+                        <span className="text-sm font-extrabold text-slate-800">{formatINR(service.price)}</span>
                       </div>
                     </div>
                   );

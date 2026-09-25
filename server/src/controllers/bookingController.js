@@ -1,4 +1,5 @@
 const prisma = require('../config/db');
+const { createNotification } = require('../utils/notificationHelper');
 
 const createBooking = async (req, res) => {
   const { serviceId, slotId, notes } = req.body;
@@ -29,14 +30,14 @@ const createBooking = async (req, res) => {
     }
 
     if (slot.isBooked) {
-      return res.status(400).json({ error: 'This slot is already booked or reserved.' });
+      return res.status(400).json({ error: 'Sorry, this slot is no longer available. Please choose another slot.' });
     }
 
-    // Prevent booking past dates
-    const slotDateTime = new Date(slot.date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (slotDateTime < today) {
+    // Prevent booking past dates using UTC date comparison
+    const slotDateOnly = new Date(slot.date);
+    const nowUTC = new Date();
+    const todayUTC = new Date(Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth(), nowUTC.getUTCDate()));
+    if (slotDateOnly < todayUTC) {
       return res.status(400).json({ error: 'Cannot book slots in the past.' });
     }
 
@@ -77,6 +78,14 @@ const createBooking = async (req, res) => {
         }
       });
     });
+
+    // Send Notification to Expert
+    await createNotification(
+      slot.expertProfile.userId,
+      'New Booking Request Received',
+      `You have received a new booking request for "${service.serviceTitle}" from ${req.user.name}.`,
+      'BOOKING_CREATED'
+    );
 
     return res.status(201).json({
       message: 'Booking request submitted successfully. Waiting for expert approval.',
@@ -203,6 +212,14 @@ const updateBookingStatus = async (req, res) => {
         }
       });
 
+      const meetDetails = isOnline ? `Meeting Link: ${meetingLink.trim()}` : `Location: ${meetingLocation.trim()}`;
+      await createNotification(
+        booking.learnerId,
+        'Booking Request Confirmed',
+        `Your booking request for "${booking.service.serviceTitle}" with ${req.user.name} has been confirmed. ${meetDetails}`,
+        'BOOKING_CONFIRMED'
+      );
+
       return res.status(200).json({ message: 'Booking confirmed successfully.', booking: updated });
     }
 
@@ -225,6 +242,13 @@ const updateBookingStatus = async (req, res) => {
         });
       });
 
+      await createNotification(
+        booking.learnerId,
+        'Booking Request Rejected',
+        `Your booking request for "${booking.service.serviceTitle}" with ${req.user.name} was rejected.`,
+        'BOOKING_REJECTED'
+      );
+
       return res.status(200).json({ message: 'Booking rejected and slot released.', booking: updated });
     }
 
@@ -233,6 +257,14 @@ const updateBookingStatus = async (req, res) => {
         where: { id },
         data: { status: 'COMPLETED' }
       });
+
+      await createNotification(
+        booking.learnerId,
+        'Session Completed',
+        `Your mentorship session "${booking.service.serviceTitle}" with ${req.user.name} has been completed.`,
+        'SESSION_COMPLETED'
+      );
+
       return res.status(200).json({ message: 'Session completed successfully.', booking: updated });
     }
 
@@ -248,7 +280,11 @@ const cancelBooking = async (req, res) => {
 
   try {
     const booking = await prisma.booking.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        service: true,
+        expertProfile: true
+      }
     });
 
     if (!booking) {
@@ -281,6 +317,13 @@ const cancelBooking = async (req, res) => {
         }
       });
     });
+
+    await createNotification(
+      booking.expertProfile.userId,
+      'Booking Cancelled by Learner',
+      `The booking for "${booking.service.serviceTitle}" has been cancelled by the learner.`,
+      'BOOKING_CANCELLED'
+    );
 
     return res.status(200).json({ message: 'Booking cancelled successfully and slot released.', booking: updated });
   } catch (error) {
@@ -317,6 +360,50 @@ const listAllBookings = async (req, res) => {
   }
 };
 
+const getBookingById = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  const userRole = req.user.role;
+
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        service: true,
+        slot: true,
+        learner: {
+          select: { id: true, name: true, email: true }
+        },
+        expertProfile: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found.' });
+    }
+
+    // Role and owner check
+    const isLearner = booking.learnerId === userId;
+    const isExpert = booking.expertProfile.userId === userId;
+    const isAdmin = userRole === 'ADMIN';
+
+    if (!isLearner && !isExpert && !isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized to view this booking.' });
+    }
+
+    return res.status(200).json({ booking });
+  } catch (error) {
+    console.error('Error fetching booking details:', error);
+    return res.status(500).json({ error: 'Internal server error retrieving booking details.' });
+  }
+};
+
 module.exports = {
   createBooking,
   listMyBookings,
@@ -324,4 +411,5 @@ module.exports = {
   updateBookingStatus,
   cancelBooking,
   listAllBookings,
+  getBookingById,
 };

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
-import { Search, User, Loader2 } from 'lucide-react';
+import { Search, User, Loader2, Clock } from 'lucide-react';
+import { formatINR } from '../utils/formatters';
 
 const Marketplace = () => {
   const [experts, setExperts] = useState([]);
@@ -53,6 +54,20 @@ const Marketplace = () => {
     fetchExperts();
   }, [selectedSkill]);
 
+  const sessions = [];
+  experts.forEach(expert => {
+    if (expert.services) {
+      expert.services.forEach(service => {
+        if (service.isActive !== false) {
+          sessions.push({
+            ...service,
+            expert
+          });
+        }
+      });
+    }
+  });
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="text-center mb-12">
@@ -103,86 +118,99 @@ const Marketplace = () => {
         <div className="flex justify-center py-20">
           <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
         </div>
-      ) : experts.length === 0 ? (
+      ) : sessions.length === 0 ? (
         <div className="text-center py-20 bg-white border border-slate-200 rounded-3xl p-8">
-          <p className="text-slate-400 text-lg font-medium">No experts found matching your criteria.</p>
+          <p className="text-slate-400 text-lg font-medium">No mentorship sessions found matching your criteria.</p>
           <p className="text-slate-500 text-sm mt-1">Try broadening your search or choosing a different skill tag.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {experts.map((expert) => (
-            <div
-              key={expert.id}
-              className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition"
-            >
-              <div>
-                {/* Upper Card Header */}
-                <div className="flex items-center space-x-4 mb-4">
-                  {expert.profileImage ? (
+          {sessions.map((session) => {
+            const expert = session.expert;
+            const isOnline = session.meetingType === 'ONLINE';
+
+            return (
+              <div
+                key={session.id}
+                className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition"
+              >
+                {/* Session Card Thumbnail/Gradient Header */}
+                <div className="h-36 w-full relative">
+                  {session.thumbnail ? (
                     <img
-                      src={expert.profileImage}
-                      alt={expert.user.name}
-                      className="h-16 w-16 rounded-2xl object-cover border border-slate-100"
+                      src={session.thumbnail}
+                      alt={session.serviceTitle}
+                      className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 border border-slate-100">
-                      <User className="h-8 w-8" />
+                    <div className="h-full w-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+                      <span className="text-white font-extrabold text-center text-sm drop-shadow-sm leading-snug tracking-tight">
+                        {session.serviceTitle}
+                      </span>
                     </div>
                   )}
+                  {/* Meeting Type Badge */}
+                  <span className={`absolute top-4 right-4 inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold border uppercase tracking-wider ${
+                    isOnline 
+                      ? 'bg-blue-50 text-blue-705 border-blue-200' 
+                      : 'bg-emerald-50 text-emerald-705 border-emerald-200'
+                  }`}>
+                    {session.meetingType}
+                  </span>
+                </div>
+
+                <div className="p-6 flex-grow flex flex-col justify-between">
                   <div>
-                    <h3 className="font-extrabold text-slate-900 text-lg">{expert.user.name}</h3>
-                    <p className="text-xs font-semibold text-slate-500 leading-tight">{expert.title}</p>
-                    <p className="text-xs text-indigo-600 font-bold">{expert.company}</p>
-                  </div>
-                </div>
+                    {/* Session Details */}
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-extrabold text-slate-900 text-sm line-clamp-1 leading-snug" title={session.serviceTitle}>
+                        {session.serviceTitle}
+                      </h4>
+                      <span className="text-xs font-black text-slate-900 ml-2">{formatINR(session.price)}</span>
+                    </div>
+                    
+                    <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-3 mb-4">
+                      {session.description}
+                    </p>
 
-                {/* Description snippet */}
-                <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-6">{expert.bio}</p>
+                    <div className="flex items-center text-slate-400 text-xs mb-4">
+                      <Clock className="h-3.5 w-3.5 mr-1 text-slate-400" />
+                      <span>{session.duration} mins</span>
+                    </div>
 
-                {/* Experience & Rate Stats */}
-                <div className="grid grid-cols-2 gap-4 py-3 px-4 bg-slate-50 rounded-2xl mb-6 border border-slate-250">
-                  <div className="text-center border-r border-slate-200">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Experience</span>
-                    <span className="text-sm font-extrabold text-slate-700">{expert.yearsOfExperience} yrs</span>
+                    {/* Mentor Info */}
+                    <div className="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-150 rounded-2xl mb-4">
+                      {expert.profileImage ? (
+                        <img
+                          src={expert.profileImage}
+                          alt={expert.user.name}
+                          className="h-9 w-9 rounded-xl object-cover border border-slate-100"
+                        />
+                      ) : (
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-slate-100">
+                          <User className="h-4 w-4" />
+                        </div>
+                      )}
+                      <div>
+                        <span className="font-bold text-slate-800 text-xs block leading-none">{expert.user.name}</span>
+                        <span className="text-[10px] text-slate-450 mt-1 block truncate max-w-[170px]">{expert.title}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Rate</span>
-                    <span className="text-sm font-extrabold text-slate-700">${expert.hourlyRate}/hr</span>
-                  </div>
-                </div>
 
-                {/* Skills tags */}
-                <div className="mb-6">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Skills</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {expert.skills.slice(0, 3).map((item) => (
-                      <span
-                        key={item.id}
-                        className="inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600 border border-slate-200"
-                      >
-                        {item.skill.name}
-                      </span>
-                    ))}
-                    {expert.skills.length > 3 && (
-                      <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2 py-1 text-[10px] font-bold text-indigo-600 border border-indigo-100">
-                        +{expert.skills.length - 3} more
-                      </span>
-                    )}
+                  {/* Book Session CTA */}
+                  <div className="pt-4 border-t border-slate-100">
+                    <Link
+                      to={`/experts/${expert.id}?serviceId=${session.id}`}
+                      className="w-full inline-flex justify-center items-center rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 transition"
+                    >
+                      Book Session
+                    </Link>
                   </div>
                 </div>
               </div>
-
-              {/* View Profile CTA */}
-              <div className="pt-4 border-t border-slate-100">
-                <Link
-                  to={`/experts/${expert.id}`}
-                  className="w-full inline-flex justify-center items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 transition"
-                >
-                  View Profile & Book
-                </Link>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

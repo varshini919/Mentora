@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { Loader2, Search, RefreshCw, ExternalLink } from 'lucide-react';
+import { formatINR } from '../utils/formatters';
 
 const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
@@ -141,7 +142,7 @@ const BookingHistory = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs font-black text-slate-900">
-                    ${b.service.price}
+                    {formatINR(b.service?.price || 0)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] font-extrabold border uppercase tracking-wider ${getStatusBadge(b.status)}`}>

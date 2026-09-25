@@ -17,6 +17,7 @@ import {
   Clock,
   Briefcase
 } from 'lucide-react';
+import { formatINR } from '../utils/formatters';
 
 const ExpertDashboard = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -48,6 +49,8 @@ const ExpertDashboard = () => {
   const [serviceDuration, setServiceDuration] = useState(60);
   const [servicePrice, setServicePrice] = useState(0);
   const [serviceMeetingType, setServiceMeetingType] = useState('ONLINE');
+  const [serviceIsActive, setServiceIsActive] = useState(true);
+  const [serviceThumbnail, setServiceThumbnail] = useState('');
   const [editingServiceId, setEditingServiceId] = useState(null);
   const [showServiceForm, setShowServiceForm] = useState(false);
 
@@ -196,6 +199,8 @@ const ExpertDashboard = () => {
         duration: parseInt(serviceDuration),
         price: parseFloat(servicePrice),
         meetingType: serviceMeetingType,
+        isActive: serviceIsActive,
+        thumbnail: serviceThumbnail || null,
       };
 
       if (editingServiceId) {
@@ -212,6 +217,8 @@ const ExpertDashboard = () => {
       setServiceDuration(60);
       setServicePrice(0);
       setServiceMeetingType('ONLINE');
+      setServiceIsActive(true);
+      setServiceThumbnail('');
       setEditingServiceId(null);
       setShowServiceForm(false);
       fetchServices();
@@ -230,6 +237,8 @@ const ExpertDashboard = () => {
     setServiceDuration(service.duration);
     setServicePrice(service.price);
     setServiceMeetingType(service.meetingType);
+    setServiceIsActive(service.isActive !== false);
+    setServiceThumbnail(service.thumbnail || '');
     setShowServiceForm(true);
   };
 
@@ -303,10 +312,30 @@ const ExpertDashboard = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-8">
+      {/* Welcome Hero Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden border border-indigo-500/20">
+        <div className="relative z-10 max-w-2xl space-y-3">
+          <span className="inline-flex items-center rounded-full bg-indigo-500/30 border border-indigo-400/30 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-indigo-200 backdrop-blur-sm">
+            Expert Workspace
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-sm">
+            Welcome back, <span className="text-indigo-300 font-black">{user?.name}</span>!
+          </h2>
+          <p className="text-slate-200 text-sm sm:text-base font-medium leading-relaxed">
+            Manage your mentorship offerings, schedule availability slots, and review incoming session bookings.
+          </p>
+        </div>
+        <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-10 hidden md:block">
+          <svg className="h-full w-full object-cover text-white" viewBox="0 0 100 100" preserveAspectRatio="none" fill="currentColor">
+            <polygon points="50,0 100,0 100,100 0,100" />
+          </svg>
+        </div>
+      </div>
+
       {/* Upper Brand / Profile Alert */}
       {!hasProfile && (
-        <div className="mb-8 rounded-2xl bg-amber-50 border border-amber-200 p-6">
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-6">
           <h2 className="text-xl font-bold text-amber-900 tracking-tight mb-1">Create Your Profile</h2>
           <p className="text-sm text-amber-700">
             Before setting up your calendar slots or service packages, you must establish your basic expert profile. 
@@ -413,7 +442,7 @@ const ExpertDashboard = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Hourly Rate ($ USD)</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Base Rate (₹ INR)</label>
                     <input
                       type="number"
                       required
@@ -547,7 +576,7 @@ const ExpertDashboard = () => {
                     setServicePrice(0);
                     setServiceMeetingType('ONLINE');
                   }}
-                  className="inline-flex items-center space-x-1 px-4 py-2 border border-indigo-600 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-50 transition cursor-pointer"
+                  className="inline-flex items-center space-x-1 px-4 py-2 border border-indigo-600 text-indigo-605 rounded-xl text-xs font-bold hover:bg-indigo-50 transition cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                   <span>New Offering</span>
@@ -596,7 +625,7 @@ const ExpertDashboard = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">Price ($ USD)</label>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Session Price (₹ INR)</label>
                         <input
                           type="number"
                           required
@@ -605,6 +634,27 @@ const ExpertDashboard = () => {
                           onChange={(e) => setServicePrice(e.target.value)}
                           className="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 sm:text-xs"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Thumbnail Image URL (Optional)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. https://images.unsplash.com/..."
+                          value={serviceThumbnail}
+                          onChange={(e) => setServiceThumbnail(e.target.value)}
+                          className="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 sm:text-xs"
+                        />
+                      </div>
+                      <div className="flex items-center mt-4">
+                        <label className="flex items-center space-x-2 text-xs font-semibold text-slate-750 select-none cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={serviceIsActive}
+                            onChange={(e) => setServiceIsActive(e.target.checked)}
+                            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                          />
+                          <span>Active / Visible in Marketplace</span>
+                        </label>
                       </div>
                     </div>
 
@@ -651,27 +701,72 @@ const ExpertDashboard = () => {
                   {services.map((service) => (
                     <div
                       key={service.id}
-                      className="flex flex-col justify-between p-5 bg-slate-50 border border-slate-200 rounded-2xl hover:border-slate-300 transition"
+                      className={`flex flex-col justify-between p-5 border rounded-2xl transition ${
+                        service.isActive ? 'bg-slate-50 border-slate-200' : 'bg-slate-100/50 border-slate-200 opacity-75'
+                      }`}
                     >
                       <div>
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-extrabold text-slate-900 text-md">{service.serviceTitle}</h4>
+                          <div>
+                            <h4 className="font-extrabold text-slate-900 text-md flex items-center gap-1.5">
+                              {service.serviceTitle}
+                              {!service.isActive && (
+                                <span className="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[9px] font-bold text-slate-600">
+                                  Inactive
+                                </span>
+                              )}
+                            </h4>
+                          </div>
                           <span className="text-xs font-bold px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700">
                             {service.meetingType}
                           </span>
                         </div>
+                        {service.thumbnail && (
+                          <img
+                            src={service.thumbnail}
+                            alt=""
+                            className="h-20 w-full object-cover rounded-xl mb-3 border border-slate-200"
+                          />
+                        )}
                         <p className="text-xs text-slate-500 line-clamp-3 mb-4 leading-relaxed">{service.description}</p>
                       </div>
-
+ 
                       <div className="flex justify-between items-center border-t border-slate-200 pt-3 mt-2">
                         <div className="flex items-center space-x-3">
                           <span className="text-xs text-slate-400 flex items-center">
                             <Clock className="h-3.5 w-3.5 mr-1" />
                             {service.duration} mins
                           </span>
-                          <span className="text-sm font-bold text-slate-900">${service.price}</span>
+                          <span className="text-sm font-bold text-slate-900">{formatINR(service.price)}</span>
                         </div>
                         <div className="flex space-x-1">
+                          <button
+                            onClick={async () => {
+                              try {
+                                setActionLoading(true);
+                                await api.put(`/services/${service.id}`, {
+                                  serviceTitle: service.serviceTitle,
+                                  description: service.description,
+                                  duration: service.duration,
+                                  price: service.price,
+                                  meetingType: service.meetingType,
+                                  isActive: !service.isActive,
+                                  thumbnail: service.thumbnail
+                                });
+                                toast.success(`Service set to ${!service.isActive ? 'Active' : 'Inactive'}`);
+                                fetchServices();
+                              } catch (err) {
+                                console.error(err);
+                                toast.error('Failed to toggle active status.');
+                              } finally {
+                                setActionLoading(false);
+                              }
+                            }}
+                            className={`px-2 py-1.5 border border-slate-200 hover:border-slate-350 rounded-xl hover:bg-slate-100 text-[10px] font-bold text-slate-600 cursor-pointer`}
+                            title={service.isActive ? 'Deactivate Service' : 'Activate Service'}
+                          >
+                            {service.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
                           <button
                             onClick={() => startEditService(service)}
                             className="p-2 border border-slate-200 hover:border-slate-300 rounded-xl hover:bg-slate-100 text-slate-500 cursor-pointer"
@@ -843,10 +938,9 @@ const ExpertDashboard = () => {
                   </div>
                 </div>
                 <div className="bg-slate-50 border border-slate-250 rounded-2xl p-5">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Hourly Earnings</span>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Base Rate</span>
                   <div className="flex items-center space-x-2">
-                    <DollarSign className="h-5 w-5 text-emerald-500" />
-                    <span className="text-2xl font-black text-slate-900">${hourlyRate} / hour</span>
+                    <span className="text-2xl font-black text-slate-900">{formatINR(hourlyRate || 0)}</span>
                   </div>
                 </div>
               </div>

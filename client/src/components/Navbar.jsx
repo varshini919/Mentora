@@ -1,12 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, GraduationCap, LogOut, LayoutDashboard, User } from 'lucide-react';
+import { Menu, X, GraduationCap, LogOut, LayoutDashboard, User, Bell } from 'lucide-react';
+import api from '../services/api';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = async () => {
+    if (isAuthenticated) {
+      try {
+        const res = await api.get('/notifications');
+        const unread = res.data.notifications.filter(n => !n.isRead).length;
+        setUnreadCount(unread);
+      } catch (err) {
+        console.error('Error fetching unread notifications:', err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    // Poll unread count every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    
+    // Listen for custom notifications refresh trigger
+    const handleRefresh = () => fetchUnreadCount();
+    window.addEventListener('refresh-notifications', handleRefresh);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('refresh-notifications', handleRefresh);
+    };
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
     logout();
@@ -108,6 +137,18 @@ const Navbar = () => {
           <div className="hidden sm:flex sm:items-center sm:space-x-4">
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
+                {/* Notification Bell */}
+                <Link
+                  to="/notifications"
+                  className="relative p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition cursor-pointer"
+                >
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white leading-none">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Link>
                 {/* User role and name */}
                 <div className="flex items-center space-x-2 px-3 py-1 bg-slate-50 border border-slate-200 rounded-full">
                   <User className="h-4 w-4 text-slate-500" />
@@ -188,6 +229,18 @@ const Navbar = () => {
                   className="block rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
                 >
                   My Bookings
+                </Link>
+                <Link
+                  to="/notifications"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                >
+                  <span>Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               </>
             )}

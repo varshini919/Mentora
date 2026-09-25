@@ -7,7 +7,8 @@ const {
   listExpertBookings,
   updateBookingStatus,
   cancelBooking,
-  listAllBookings
+  listAllBookings,
+  getBookingById
 } = require('../controllers/bookingController');
 
 const { bookingValidator } = require('../validators/bookingValidator');
@@ -16,6 +17,7 @@ const { authenticateJWT, requireRoles } = require('../middleware/authMiddleware'
 // Protected routes (All authenticated users can create / read their own bookings)
 router.post('/', authenticateJWT, bookingValidator, createBooking);
 router.get('/my', authenticateJWT, listMyBookings);
+router.get('/:id', authenticateJWT, getBookingById);
 router.delete('/:id', authenticateJWT, cancelBooking);
 
 // Expert only routes

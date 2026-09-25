@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { Calendar, Clock, DollarSign, Video, MapPin, X, Loader2 } from 'lucide-react';
+import { formatINR } from '../utils/formatters';
 
 const BookingModal = ({ expert, service, slot, onClose, onSuccess }) => {
   const [notes, setNotes] = useState('');
@@ -56,7 +57,7 @@ const BookingModal = ({ expert, service, slot, onClose, onSuccess }) => {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mentor</span>
               <span className="text-sm font-extrabold text-slate-700">{expert.user?.name}</span>
             </div>
-            <span className="text-sm font-black text-slate-900">${service.price}</span>
+            <span className="text-sm font-black text-slate-900">{formatINR(service.price)}</span>
           </div>
 
           <div>

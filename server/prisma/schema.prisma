@@ -36,6 +36,7 @@ model User {
   updatedAt     DateTime       @updatedAt
   expertProfile ExpertProfile?
   bookings      Booking[]      @relation(name: "LearnerBookings")
+  notifications Notification[]
 
   @@map("users")
 }
@@ -92,6 +93,8 @@ model ExpertService {
   duration        Int // Duration in minutes
   price           Float
   meetingType     MeetingType   @default(ONLINE)
+  isActive        Boolean       @default(true)
+  thumbnail       String?       @db.Text
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   bookings        Booking[]
@@ -129,8 +132,33 @@ model Booking {
   meetingLink     String?
   meetingLocation String?
   notes           String?          @db.Text
+  reminderSent24h Boolean          @default(false)
+  reminderSent1h  Boolean          @default(false)
+  reminderSent15m Boolean          @default(false)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
   @@map("bookings")
+}
+
+enum NotificationType {
+  BOOKING_CREATED
+  BOOKING_CONFIRMED
+  BOOKING_REJECTED
+  BOOKING_CANCELLED
+  SESSION_REMINDER
+  SESSION_COMPLETED
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String           @db.Text
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@map("notifications")
 }

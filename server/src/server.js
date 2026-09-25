@@ -3,6 +3,7 @@ const app = require('./app');
 const prisma = require('./config/db');
 
 const PORT = process.env.PORT || 5000;
+const { startReminderCron } = require('./utils/reminderCron');
 
 const startServer = async () => {
   try {
@@ -12,6 +13,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode.`);
+      startReminderCron();
     });
   } catch (error) {
     console.error('Failed to start server due to database connection error:', error);

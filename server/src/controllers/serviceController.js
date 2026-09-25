@@ -7,7 +7,7 @@ const getExpertProfile = async (userId) => {
 };
 
 const createService = async (req, res) => {
-  const { serviceTitle, description, duration, price, meetingType } = req.body;
+  const { serviceTitle, description, duration, price, meetingType, isActive, thumbnail } = req.body;
   const userId = req.user.id;
 
   try {
@@ -36,6 +36,8 @@ const createService = async (req, res) => {
         duration: parseInt(duration, 10),
         price: parseFloat(price),
         meetingType,
+        isActive: isActive !== undefined ? Boolean(isActive) : true,
+        thumbnail: thumbnail || null,
       },
     });
 
@@ -103,7 +105,7 @@ const getServiceById = async (req, res) => {
 
 const updateService = async (req, res) => {
   const { id } = req.params;
-  const { serviceTitle, description, duration, price, meetingType } = req.body;
+  const { serviceTitle, description, duration, price, meetingType, isActive, thumbnail } = req.body;
   const userId = req.user.id;
 
   try {
@@ -146,6 +148,8 @@ const updateService = async (req, res) => {
         duration: parseInt(duration, 10),
         price: parseFloat(price),
         meetingType,
+        isActive: isActive !== undefined ? Boolean(isActive) : service.isActive,
+        thumbnail: thumbnail !== undefined ? thumbnail : service.thumbnail,
       },
     });
 

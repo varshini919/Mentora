@@ -12,10 +12,10 @@ const registerValidator = [
     .withMessage('Email is required')
     .isEmail()
     .withMessage('Please provide a valid email')
-    .normalizeEmail()
     .custom(async (value) => {
+      const clean = value ? value.toLowerCase().trim() : '';
       const user = await prisma.user.findUnique({
-        where: { email: value },
+        where: { email: clean },
       });
       if (user) {
         throw new Error('Email is already registered');
